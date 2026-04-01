@@ -26,6 +26,7 @@ type ContextBuilder struct {
 	toolDiscoveryBM25  bool
 	toolDiscoveryRegex bool
 	splitOnMarker      bool
+	modelName          string
 
 	// Cache for system prompt to avoid rebuilding on every call.
 	// This fixes issue #607: repeated reprocessing of the entire context.
@@ -54,6 +55,11 @@ func (cb *ContextBuilder) WithToolDiscovery(useBM25, useRegex bool) *ContextBuil
 
 func (cb *ContextBuilder) WithSplitOnMarker(enabled bool) *ContextBuilder {
 	cb.splitOnMarker = enabled
+	return cb
+}
+
+func (cb *ContextBuilder) WithModelName(name string) *ContextBuilder {
+	cb.modelName = name
 	return cb
 }
 
@@ -498,6 +504,10 @@ func (cb *ContextBuilder) buildDynamicContext(channel, chatID, senderID, senderD
 
 	var sb strings.Builder
 	fmt.Fprintf(&sb, "## Current Time\n%s\n\n## Runtime\n%s", now, rt)
+
+	if cb.modelName != "" {
+		fmt.Fprintf(&sb, "\n\n## Current Model\n%s", cb.modelName)
+	}
 
 	if channel != "" && chatID != "" {
 		fmt.Fprintf(&sb, "\n\n## Current Session\nChannel: %s\nChat ID: %s", channel, chatID)
