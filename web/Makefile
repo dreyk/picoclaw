@@ -91,6 +91,10 @@ build: build-frontend
 	@mkdir -p "$$(dirname "$(OUTPUT)")"
 	${WEB_GO} build $(GOFLAGS) -ldflags "$(LAUNCHER_LDFLAGS)" -o "$(OUTPUT)" ./$(BACKEND_DIR)/
 
+build-backend:
+	@mkdir -p "$$(dirname "$(OUTPUT)")"
+	${WEB_GO} build $(GOFLAGS) -ldflags "$(LAUNCHER_LDFLAGS)" -o "$(OUTPUT)" ./$(BACKEND_DIR)/
+
 build-frontend:
 	@if [ ! -d $(FRONTEND_DIR)/node_modules ] || \
 		[ $(FRONTEND_DIR)/package.json -nt $(FRONTEND_DIR)/node_modules ] || \
