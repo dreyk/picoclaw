@@ -69,6 +69,9 @@ type AgentLoop struct {
 	activeRequests sync.WaitGroup
 
 	reloadFunc func() error
+
+	// Debug
+	llmDump *llmDumper
 }
 
 // processOptions configures how a message is processed
@@ -149,6 +152,7 @@ func NewAgentLoop(
 		fallback:    fallbackChain,
 		cmdRegistry: commands.NewRegistry(commands.BuiltinDefinitions()),
 		steering:    newSteeringQueue(parseSteeringMode(cfg.Agents.Defaults.SteeringMode)),
+		llmDump:     newLLMDumper(cfg.Debug.LLMDumpDir),
 	}
 	al.hooks = NewHookManager(eventBus)
 	configureHookManagerFromConfig(al.hooks, cfg)
@@ -2040,6 +2044,7 @@ turnLoop:
 		var response *providers.LLMResponse
 		var err error
 		maxRetries := 2
+		dumpSeq := al.llmDump.dumpRequest(ts.agent.ID, iteration, llmModel, callMessages, providerToolDefs, llmOpts)
 		for retry := 0; retry <= maxRetries; retry++ {
 			response, err = callLLM(callMessages, providerToolDefs)
 			if err == nil {
@@ -2157,6 +2162,8 @@ turnLoop:
 			}
 			break
 		}
+
+		al.llmDump.dumpResponse(dumpSeq, response, err)
 
 		if err != nil {
 			turnStatus = TurnEndStatusError

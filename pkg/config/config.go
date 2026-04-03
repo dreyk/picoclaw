@@ -39,10 +39,16 @@ type Config struct {
 	Devices   DevicesConfig   `json:"devices"            yaml:"-"`
 	Voice     VoiceConfig     `json:"voice"              yaml:"-"`
 	// BuildInfo contains build-time version information
-	BuildInfo BuildInfo `json:"build_info,omitempty" yaml:"-"`
+	BuildInfo BuildInfo   `json:"build_info,omitempty" yaml:"-"`
+	Debug     DebugConfig `json:"debug,omitempty"      yaml:"-"`
 
 	// cache for sensitive values and compiled regex (computed once)
 	sensitiveCache *SensitiveDataCache
+}
+
+// DebugConfig holds debug/diagnostic settings.
+type DebugConfig struct {
+	LLMDumpDir string `json:"llm_dump_dir,omitempty" env:"PICOCLAW_DEBUG_LLM_DUMP_DIR"`
 }
 
 // FilterSensitiveData filters sensitive values from content before sending to LLM.
